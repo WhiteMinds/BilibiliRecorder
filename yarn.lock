@@ -75,10 +75,10 @@ axios@^0.27.2:
     follow-redirects "^1.14.9"
     form-data "^4.0.0"
 
-blive-message-listener@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/blive-message-listener/-/blive-message-listener-0.3.0.tgz#665e9073163ef439d7bb4a85496c81c360da1c9a"
-  integrity sha512-+NDiQH3udqKNeOYvY/MWx9iM5uDCkS7zNr8D5gUzgZR/fsJDGWlOpthqxvcYOFbEcOKeQuNwxh46WZn8ahEDzw==
+blive-message-listener@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/blive-message-listener/-/blive-message-listener-0.3.1.tgz#4523f654c238c1888b886473d4a37a877951d19e"
+  integrity sha512-m3FQo5vYnTqXBjK8bR7jgTfYv/HYqknC+FlfbMaYaArT0cnMYgYiqNCvz7j4+uIKU23F72CbqFR0QttheeUm4g==
   dependencies:
     tiny-bilibili-ws "^0.0.5"
 

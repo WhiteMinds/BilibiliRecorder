@@ -16,8 +16,6 @@ import {
 } from '@autorecord/manager'
 import { getInfo, getStream } from './stream'
 import { ensureFolderExist, singleton } from './utils'
-// TODO: 这个包类型有点问题，现在先手改下 d.ts 再编译，等修复
-// https://github.com/ddiu8081/blive-message-listener/issues/11
 import { startListen, MsgHandler } from 'blive-message-listener'
 
 function createRecorder(opts: RecorderCreateOpts): Recorder {
