@@ -210,6 +210,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
       command.kill('SIGINT')
       // TODO: 这里可能会有内存泄露，因为事件还没清，之后再检查下看看。
       client?.close()
+      extraDataController.setMeta({ recordStopTimestamp: Date.now() })
       extraDataController.flush()
 
       this.usedStream = undefined

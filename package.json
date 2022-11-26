@@ -1,6 +1,6 @@
 {
   "name": "@autorecord/bilibili-recorder",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "LAR bilibili recorder implemention",
   "main": "./lib/index.js",
   "publishConfig": {
@@ -19,13 +19,17 @@
   "dependencies": {
     "axios": "^0.27.2",
     "blive-message-listener": "^0.3.1",
+    "mitt": "^3.0.0",
     "ramda": "^0.28.0"
   },
   "devDependencies": {
+    "@autorecord/manager": "^0.0.20",
+    "@types/lodash": "^4.14.190",
+    "@types/node": "*",
     "@types/ramda": "^0.28.16",
     "typescript": "^4.8.4"
   },
   "peerDependencies": {
-    "@autorecord/manager": "^0.0.18"
+    "@autorecord/manager": "*"
   }
 }
