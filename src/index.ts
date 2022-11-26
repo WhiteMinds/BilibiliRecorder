@@ -60,7 +60,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
   async function ({ getSavePath }) {
     if (this.recordHandle != null) return this.recordHandle
 
-    const { living, owner, title } = await getInfo(this.channelId)
+    const { living, owner, title, roomId } = await getInfo(this.channelId)
     if (!living) return null
 
     this.state = 'recording'
@@ -139,7 +139,8 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
         },
       }
 
-      client = startListen(Number(this.channelId), handler)
+      // 弹幕协议不能走短 id，所以不能直接用 channelId。
+      client = startListen(roomId, handler)
     }
 
     const recordSavePath = savePath + '.mp4'
@@ -147,6 +148,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
 
     const callback = (...args: unknown[]) => {
       console.log('cb', ...args)
+      this.recordHandle?.stop()
     }
     // TODO: 主播重新开关播后原来的直播流地址会失效，这可能会导致录制出现问题，需要处理。
     /**

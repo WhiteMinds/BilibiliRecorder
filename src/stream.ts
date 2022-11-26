@@ -16,6 +16,8 @@ export async function getInfo(channelId: string): Promise<{
   living: boolean
   owner: string
   title: string
+  roomId: number
+  shortId: number
 }> {
   const roomInit = await getRoomInit(Number(channelId))
   const { [roomInit.uid]: status } = await getStatusInfoByUIDs([roomInit.uid])
@@ -24,6 +26,8 @@ export async function getInfo(channelId: string): Promise<{
     living: status.live_status === 1,
     owner: status.uname,
     title: status.title,
+    roomId: roomInit.room_id,
+    shortId: roomInit.short_id,
   }
 }
 
