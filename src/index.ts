@@ -252,7 +252,7 @@ export const provider: RecorderProvider<{}> = {
     const info = await getInfo(id)
 
     return {
-      id,
+      id: info.roomId.toString(),
       title: info.title,
       owner: info.owner,
     }
