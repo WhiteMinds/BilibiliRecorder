@@ -1,6 +1,6 @@
 {
   "name": "@autorecord/bilibili-recorder",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "LAR bilibili recorder implemention",
   "main": "./lib/index.js",
   "publishConfig": {
@@ -23,7 +23,7 @@
     "ramda": "^0.28.0"
   },
   "devDependencies": {
-    "@autorecord/manager": "^0.0.20",
+    "@autorecord/manager": "^0.0.21",
     "@types/lodash": "^4.14.190",
     "@types/node": "*",
     "@types/ramda": "^0.28.16",
