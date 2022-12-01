@@ -1,6 +1,6 @@
 {
   "name": "@autorecord/bilibili-recorder",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "LAR bilibili recorder implemention",
   "main": "./lib/index.js",
   "publishConfig": {

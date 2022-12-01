@@ -89,8 +89,10 @@ export async function getStream(
   }
 
   let liveInfo = await getLiveInfo(roomId, {
-    protocol: 'http_hls',
-    format: 'fmp4',
+    // 本来是用的 b 站首选的的 http_hls，但是录制后经常出现视频卡顿然后音画不同步的情况，没有
+    // 具体调查，猜测是 ffmpeg 对于 b 站的 fmp4 源处理的有问题，这里先改成用 http_stream 的 flv。
+    protocol: 'http_stream',
+    format: 'flv',
     codec: 'avc',
   })
 
@@ -116,8 +118,8 @@ export async function getStream(
     // 当前流不是预期的流，需要切换。
     liveInfo = await getLiveInfo(roomId, {
       qn: expectStream.qn,
-      protocol: 'http_hls',
-      format: 'fmp4',
+      protocol: 'http_stream',
+      format: 'flv',
       codec: 'avc',
     })
   }

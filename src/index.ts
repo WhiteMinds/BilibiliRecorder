@@ -155,10 +155,15 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
      * FragmentMP4 可以边录边播（浏览器原生支持），具有一定的抗损坏能力，录制中 KILL 只会
      * 丢失最后一个片段，而 FLV 格式如果录制中 KILL 了需要手动修复下 keyframes。
      */
-    const command = createFFMPEGBuilder(stream.url)
-      .outputOptions(
+    const command = createFFMPEGBuilder()
+      .input(stream.url)
+      .addInputOptions(
         '-user_agent',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko/20100101 Firefox/107.0',
+        '-headers',
+        'Referer: https://live.bilibili.com/'
+      )
+      .outputOptions(
         '-c',
         'copy',
         '-f',
