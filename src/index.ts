@@ -15,7 +15,7 @@ import {
   GiveGift,
 } from '@autorecord/manager'
 import { getInfo, getStream } from './stream'
-import { ensureFolderExist, singleton } from './utils'
+import { ensureFolderExist, replaceExtName, singleton } from './utils'
 import { startListen, MsgHandler } from 'blive-message-listener'
 
 function createRecorder(opts: RecorderCreateOpts): Recorder {
@@ -99,7 +99,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
     const savePath = getSavePath({ owner, title })
 
     // TODO: 之后可能要结合 disableRecordMeta 之类的来确认是否要创建文件。
-    const extraDataSavePath = savePath + '.json'
+    const extraDataSavePath = replaceExtName(savePath, '.json')
     // TODO: 这个 ensure 或许应该放在 createRecordExtraDataController 里实现？
     ensureFolderExist(extraDataSavePath)
     const extraDataController =

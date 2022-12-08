@@ -103,3 +103,10 @@ export function assertObjectType(
 ): asserts data is object {
   assert(typeof data === 'object', msg)
 }
+
+export function replaceExtName(filePath: string, newExtName: string) {
+  return path.join(
+    path.dirname(filePath),
+    path.basename(filePath, path.extname(filePath)) + newExtName
+  )
+}
