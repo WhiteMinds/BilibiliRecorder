@@ -56,6 +56,14 @@ function createRecorder(opts: RecorderCreateOpts): Recorder {
   return recorderWithSupportUpdatedEvent
 }
 
+const ffmpegOutputOptions: string[] = [
+  '-c',
+  'copy',
+  '-movflags',
+  'frag_keyframe',
+  '-min_frag_duration',
+  '60000000',
+]
 const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
   async function ({ getSavePath }) {
     if (this.recordHandle != null) return this.recordHandle
@@ -151,7 +159,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
       client = startListen(roomId, handler)
     }
 
-    const recordSavePath = savePath + '.mp4'
+    const recordSavePath = savePath
     ensureFolderExist(recordSavePath)
 
     const callback = (...args: unknown[]) => {
@@ -171,26 +179,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
         '-headers',
         'Referer: https://live.bilibili.com/'
       )
-      .outputOptions(
-        '-c',
-        'copy',
-        '-f',
-        'mp4',
-        '-movflags',
-        'frag_keyframe',
-        /**
-         * 浏览器加载 FragmentMP4 会需要先把它所有的 moof boxes 都加载完成后才能播放，
-         * 默认的分段时长很小，会产生大量的 moof，导致加载很慢，所以这里设置一个分段的最小时长。
-         *
-         * TODO: 这个浏览器行为或许是可以优化的，比如试试给 fmp4 在录制完成后设置或者录制过程中实时更新 mvhd.duration。
-         * https://stackoverflow.com/questions/55887980/how-to-use-media-source-extension-mse-low-latency-mode
-         * https://stackoverflow.com/questions/61803136/ffmpeg-fragmented-mp4-takes-long-time-to-start-playing-on-chrome
-         *
-         * TODO: 如果浏览器行为无法优化，并且想进一步优化加载速度，可以考虑录制时使用 fmp4，录制完成后再转一次普通 mp4。
-         */
-        '-min_frag_duration',
-        '60000000'
-      )
+      .outputOptions(ffmpegOutputOptions)
       .output(recordSavePath)
       .on('error', callback)
       .on('end', () => callback())
@@ -277,5 +266,9 @@ export const provider: RecorderProvider<{}> = {
 
   fromJSON(recorder) {
     return defaultFromJSON(this, recorder)
+  },
+
+  setFFMPEGOutputArgs(args) {
+    ffmpegOutputOptions.splice(0, ffmpegOutputOptions.length, ...args)
   },
 }
