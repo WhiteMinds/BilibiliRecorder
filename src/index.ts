@@ -192,7 +192,7 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
       .on('error', onEnd)
       .on('end', () => onEnd('end'))
       .on('stderr', (stderrLine) => {
-        assertStringType(typeof stderrLine === 'string')
+        assertStringType(stderrLine)
         this.emit('DebugLog', { type: 'ffmpeg', text: stderrLine })
 
         if (isInvalidStream(stderrLine)) {
