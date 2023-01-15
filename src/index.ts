@@ -15,7 +15,12 @@ import {
   GiveGift,
 } from '@autorecord/manager'
 import { getInfo, getStream } from './stream'
-import { ensureFolderExist, replaceExtName, singleton } from './utils'
+import {
+  assertStringType,
+  ensureFolderExist,
+  replaceExtName,
+  singleton,
+} from './utils'
 import { startListen, MsgHandler } from 'blive-message-listener'
 
 function createRecorder(opts: RecorderCreateOpts): Recorder {
@@ -162,15 +167,18 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
     const recordSavePath = savePath
     ensureFolderExist(recordSavePath)
 
-    const callback = (...args: unknown[]) => {
-      console.log('cb', ...args)
+    const onEnd = (...args: unknown[]) => {
+      this.emit('DebugLog', {
+        type: 'common',
+        text: `ffmpeg end, reason: ${JSON.stringify(args)}`,
+      })
       this.recordHandle?.stop()
     }
-    // TODO: 主播重新开关播后原来的直播流地址会失效，这可能会导致录制出现问题，需要处理。
-    /**
-     * FragmentMP4 可以边录边播（浏览器原生支持），具有一定的抗损坏能力，录制中 KILL 只会
-     * 丢失最后一个片段，而 FLV 格式如果录制中 KILL 了需要手动修复下 keyframes。
-     */
+    const isInvalidStream = createInvalidStreamChecker()
+    const timeoutChecker = createTimeoutChecker(
+      () => onEnd('ffmpeg timeout'),
+      10e3
+    )
     const command = createFFMPEGBuilder()
       .input(stream.url)
       .addInputOptions(
@@ -181,22 +189,17 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
       )
       .outputOptions(ffmpegOutputOptions)
       .output(recordSavePath)
-      .on('error', callback)
-      .on('end', () => callback())
+      .on('error', onEnd)
+      .on('end', () => onEnd('end'))
       .on('stderr', (stderrLine) => {
+        assertStringType(typeof stderrLine === 'string')
         this.emit('DebugLog', { type: 'ffmpeg', text: stderrLine })
 
-        // if (stderrLine.startsWith('frame=')) {
-        //   if (waitFirstFrame) {
-        //     waitFirstFrame = false
-        //     // 发出通知
-        //     if (config.record.notice && !isSwitching)
-        //       createNotice(channel.profile, channelInfo.title)
-        //   }
-
-        //   // TODO: 在此处对长时间无frame时的情况做检查。
-        // }
+        if (isInvalidStream(stderrLine)) {
+          onEnd('invalid stream')
+        }
       })
+      .on('stderr', timeoutChecker)
     const ffmpegArgs = command._getArguments()
     extraDataController.setMeta({
       recordStartTimestamp: Date.now(),
@@ -242,6 +245,57 @@ const checkLiveStatusAndRecord: Recorder['checkLiveStatusAndRecord'] =
 
     return this.recordHandle
   }
+
+function createTimeoutChecker(
+  onTimeout: () => void,
+  time: number
+): (ffmpegLogLine: string) => void {
+  let lastTime = Date.now()
+  let called = false
+
+  return () => {
+    if (called) return
+    const now = Date.now()
+    if (now - lastTime > time) {
+      called = true
+      onTimeout()
+    } else {
+      lastTime = now
+    }
+  }
+}
+
+function createInvalidStreamChecker(): (ffmpegLogLine: string) => boolean {
+  let prevFrame = 0
+  let frameUnchangedCount = 0
+
+  return (ffmpegLogLine) => {
+    const streamInfo = ffmpegLogLine.match(
+      /frame=\s*(\d+) fps=.*? q=.*? size=\s*(\d+)kB time=.*? bitrate=.*? speed=.*?/
+    )
+    if (streamInfo != null) {
+      const [, frameText] = streamInfo
+      const frame = Number(frameText)
+
+      if (frame === prevFrame) {
+        if (++frameUnchangedCount >= 10) {
+          return true
+        }
+      } else {
+        prevFrame = frame
+        frameUnchangedCount = 0
+      }
+
+      return false
+    }
+
+    if (ffmpegLogLine.includes('HTTP error 404 Not Found')) {
+      return true
+    }
+
+    return false
+  }
+}
 
 export const provider: RecorderProvider<{}> = {
   id: 'Bilibili',
