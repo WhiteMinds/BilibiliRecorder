@@ -34,14 +34,9 @@ export async function getRoomInit(roomIdOrShortId: number) {
       // 普通直播间 / 付费直播间
       is_sp: 0 | 1
     }>
-  >(
-    `https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomIdOrShortId}`
-  )
+  >(`https://api.live.bilibili.com/room/v1/Room/room_init?id=${roomIdOrShortId}`)
 
-  assert(
-    res.data.code === 0,
-    `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`
-  )
+  assert(res.data.code === 0, `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`)
 
   return res.data.data
 }
@@ -64,10 +59,7 @@ export async function getRoomInfo(roomIdOrShortId: number) {
     }>
   >(`https://api.live.bilibili.com/room/v1/Room/get_info?id=${roomIdOrShortId}`)
 
-  assert(
-    res.data.code === 0,
-    `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`
-  )
+  assert(res.data.code === 0, `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`)
 
   return res.data.data
 }
@@ -87,10 +79,7 @@ export async function getMasterInfo(userId: number) {
     }>
   >(`http://api.live.bilibili.com/live_user/v1/Master/info?uid=${userId}`)
 
-  assert(
-    res.data.code === 0,
-    `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`
-  )
+  assert(res.data.code === 0, `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`)
 
   return res.data.data
 }
@@ -117,10 +106,7 @@ export async function getStatusInfoByUIDs<UID extends number>(userIds: UID[]) {
     params: { uids: userIds },
   })
 
-  assert(
-    res.data.code === 0,
-    `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`
-  )
+  assert(res.data.code === 0, `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`)
 
   return res.data.data
 }
@@ -131,7 +117,7 @@ export async function getPlayURL(
     useHLS?: boolean
     quality?: number
     qn?: string
-  } = {}
+  } = {},
 ) {
   const res = await requester.get<
     BilibiliResp<{
@@ -156,10 +142,7 @@ export async function getPlayURL(
     },
   })
 
-  assert(
-    res.data.code === 0,
-    `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`
-  )
+  assert(res.data.code === 0, `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`)
 
   return res.data.data
 }
@@ -168,7 +151,7 @@ export async function getRoomPlayInfo(
   roomIdOrShortId: number,
   opts: {
     qn?: number
-  } = {}
+  } = {},
 ) {
   const res = await requester.get<
     BilibiliResp<{
@@ -198,10 +181,7 @@ export async function getRoomPlayInfo(
     },
   })
 
-  assert(
-    res.data.code === 0,
-    `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`
-  )
+  assert(res.data.code === 0, `Unexpected resp, code ${res.data.code}, msg ${res.data.message}`)
 
   return res.data.data
 }

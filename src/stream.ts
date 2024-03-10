@@ -38,22 +38,18 @@ async function getLiveInfo(
     protocol?: ProtocolInfo['protocol_name']
     format?: FormatInfo['format_name']
     codec?: CodecInfo['codec_name']
-  } = {}
+  } = {},
 ) {
   const res = await getRoomPlayInfo(roomIdOrShortId, opts)
 
   const streamInfo = res.playurl_info.playurl.stream
-    .find(
-      ({ protocol_name }) => protocol_name === (opts.protocol ?? 'http_stream')
-    )
+    .find(({ protocol_name }) => protocol_name === (opts.protocol ?? 'http_stream'))
     ?.format.find(({ format_name }) => format_name === (opts.format ?? 'flv'))
     ?.codec.find(({ codec_name }) => codec_name === (opts.codec ?? 'avc'))
   assert(streamInfo, 'Unexpected getRoomPlayInfo resp')
 
   const streams: StreamProfile[] = streamInfo.accept_qn.map((qn) => {
-    const qnDesc = res.playurl_info.playurl.g_qn_desc.find(
-      (item) => item.qn === qn
-    )
+    const qnDesc = res.playurl_info.playurl.g_qn_desc.find((item) => item.qn === qn)
     assert(qnDesc, 'Unexpected getRoomPlayInfo resp')
     return qnDesc
   })
@@ -63,9 +59,7 @@ async function getLiveInfo(
     name: idx === 0 ? '主线' : `备线 ${idx}`,
   }))
 
-  const currentStreamName = res.playurl_info.playurl.g_qn_desc.find(
-    (item) => item.qn === streamInfo.current_qn
-  )?.desc
+  const currentStreamName = res.playurl_info.playurl.g_qn_desc.find((item) => item.qn === streamInfo.current_qn)?.desc
   assert(currentStreamName, 'Unexpected getRoomPlayInfo resp')
 
   return {
@@ -77,10 +71,7 @@ async function getLiveInfo(
 }
 
 export async function getStream(
-  opts: Pick<
-    Recorder,
-    'channelId' | 'quality' | 'streamPriorities' | 'sourcePriorities'
-  > & { rejectCache?: boolean }
+  opts: Pick<Recorder, 'channelId' | 'quality' | 'streamPriorities' | 'sourcePriorities'> & { rejectCache?: boolean },
 ) {
   const roomId = Number(opts.channelId)
   const roomInit = await getRoomInit(roomId)
@@ -97,10 +88,7 @@ export async function getStream(
   })
 
   let expectStream: StreamProfile | null = null
-  const streamsWithPriority = sortAndFilterStreamsByPriority(
-    liveInfo.streams,
-    opts.streamPriorities
-  )
+  const streamsWithPriority = sortAndFilterStreamsByPriority(liveInfo.streams, opts.streamPriorities)
   if (streamsWithPriority.length > 0) {
     // 通过优先级来选择对应流
     expectStream = streamsWithPriority[0]
@@ -109,7 +97,7 @@ export async function getStream(
     const flexedStreams = getValuesFromArrayLikeFlexSpaceBetween(
       // 接口给的画质列表是按照清晰到模糊的顺序的，这里翻转下
       R.reverse(liveInfo.streams),
-      Qualities.length
+      Qualities.length,
     )
     expectStream = flexedStreams[Qualities.indexOf(opts.quality)]
   }
@@ -125,10 +113,7 @@ export async function getStream(
   }
 
   let expectSource: SourceProfile | null = null
-  const sourcesWithPriority = sortAndFilterSourcesByPriority(
-    liveInfo.sources,
-    opts.sourcePriorities
-  )
+  const sourcesWithPriority = sortAndFilterSourcesByPriority(liveInfo.sources, opts.sourcePriorities)
   if (sourcesWithPriority.length > 0) {
     expectSource = sourcesWithPriority[0]
   } else {
@@ -150,7 +135,7 @@ export async function getStream(
  */
 function sortAndFilterStreamsByPriority(
   streams: StreamProfile[],
-  streamPriorities: Recorder['streamPriorities']
+  streamPriorities: Recorder['streamPriorities'],
 ): (StreamProfile & {
   priority: number
 })[] {
@@ -164,7 +149,7 @@ function sortAndFilterStreamsByPriority(
         ...stream,
         priority: R.reverse(streamPriorities).indexOf(stream.desc),
       }))
-      .filter(({ priority }) => priority !== -1)
+      .filter(({ priority }) => priority !== -1),
   )
 }
 
@@ -173,7 +158,7 @@ function sortAndFilterStreamsByPriority(
  */
 function sortAndFilterSourcesByPriority(
   sources: SourceProfile[],
-  sourcePriorities: Recorder['sourcePriorities']
+  sourcePriorities: Recorder['sourcePriorities'],
 ): (SourceProfile & {
   priority: number
 })[] {
@@ -187,6 +172,6 @@ function sortAndFilterSourcesByPriority(
         ...source,
         priority: R.reverse(sourcePriorities).indexOf(source.name),
       }))
-      .filter(({ priority }) => priority !== -1)
+      .filter(({ priority }) => priority !== -1),
   )
 }
